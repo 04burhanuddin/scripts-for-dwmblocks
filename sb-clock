@@ -3,7 +3,6 @@
 hour=$(date '+%I')
 
 case "$hour" in
-"00" | "12") icon="󱑖" ;;
 "01") icon="󱑋" ;;
 "02") icon="󱑌" ;;
 "03") icon="󱑍" ;;
@@ -15,6 +14,7 @@ case "$hour" in
 "09") icon="󱑓" ;;
 "10") icon="󱑔" ;;
 "11") icon="󱑕" ;;
+"12") icon="󱑖" ;;
 esac
 
-printf " %s %s \n" "$icon" "$(date '+%I:%M')"
+printf " %s %s \n" "$icon" "$(date '+%I:%M%p')"
