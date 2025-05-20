@@ -1,0 +1,28 @@
+#!/bin/sh
+
+cpu_temp=$(sensors | awk '/^Package id 0:/ {gsub(/\+|°C/, "", $4); print int($4)}')
+gpu_temp=$(sensors | awk '/^edge:/ {gsub(/\+|°C/, "", $2); print int($2)}' | head -n1)
+
+get_icon() {
+  temp=$1
+  if [ "$temp" -lt 40 ]; then
+    echo "" # empty
+  elif [ "$temp" -lt 65 ]; then
+    echo "" # half
+  elif [ "$temp" -lt 75 ]; then
+    echo "" # quarter
+  elif [ "$temp" -lt 85 ]; then
+    echo "" # high
+  else
+    echo ""
+  fi
+}
+
+cpu_icon=$(get_icon "$cpu_temp")
+
+if [ -n "$gpu_temp" ]; then
+  gpu_icon=$(get_icon "$gpu_temp")
+  printf " %s CPU %d°C %s GPU %d°C \n" "$cpu_icon" "$cpu_temp" "$gpu_icon" "$gpu_temp"
+else
+  printf " %s CPU %d°C \n" "$cpu_icon" "$cpu_temp"
+fi

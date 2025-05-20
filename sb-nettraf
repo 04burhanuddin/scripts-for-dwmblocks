@@ -1,0 +1,43 @@
+#!/bin/sh
+
+update() {
+  local sum=0
+  local arg
+  for arg in "$@"; do
+    [ -r "$arg" ] && read -r i <"$arg" && sum=$((sum + i))
+  done
+
+  local cache="/tmp/${1##*/}"
+  local now=$(date +%s)
+
+  if [ -f "$cache" ]; then
+    read -r old_sum old_time <"$cache"
+    delta_bytes=$((sum - old_sum))
+    delta_time=$((now - old_time))
+    if [ "$delta_time" -gt 0 ]; then
+      speed=$((delta_bytes / delta_time))
+    else
+      speed=0
+    fi
+  else
+    speed=0
+  fi
+
+  printf '%d %d\n' "$sum" "$now" >"$cache"
+  printf '%d\n' "$speed"
+}
+
+# Ambil interface aktif saja
+get_active_ifaces() {
+  for iface in /sys/class/net/[ew]*; do
+    [ -f "$iface/operstate" ] && [ "$(cat "$iface/operstate")" = "up" ] && echo "$iface/statistics"
+  done
+}
+
+rx_paths=$(get_active_ifaces | sed 's|$|/rx_bytes|')
+tx_paths=$(get_active_ifaces | sed 's|$|/tx_bytes|')
+
+rx=$(update $rx_paths)
+tx=$(update $tx_paths)
+
+printf "󰁅 %s/s  󰁝 %s/s\n" "$(numfmt --to=iec --suffix=B "$rx")" "$(numfmt --to=iec --suffix=B "$tx")"

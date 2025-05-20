@@ -1,0 +1,15 @@
+#!/bin/sh
+
+max=$(cat /sys/class/backlight/*/max_brightness)
+cur=$(cat /sys/class/backlight/*/brightness)
+percent=$((100 * cur / max))
+
+if [ "$percent" -le 50 ]; then
+  icon=""
+elif [ "$percent" -le 80 ]; then
+  icon="󰚜"
+else
+  icon="󰇳"
+fi
+
+printf " %s %s%% \n" "$icon" "$percent"

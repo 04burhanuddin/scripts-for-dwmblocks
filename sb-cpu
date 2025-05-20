@@ -1,0 +1,4 @@
+#!/bin/sh
+
+cpu=$(top -bn1 | grep "Cpu(s)" | awk -F',' '{usage=100 - $4; printf "%.0f", usage}')
+printf " 󰻠 CPU %s%% \n" "$cpu"

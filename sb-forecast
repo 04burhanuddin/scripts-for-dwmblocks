@@ -1,0 +1,43 @@
+#!/bin/sh
+
+url="${WTTRURL:-wttr.in}"
+cache_file="${XDG_CACHE_HOME:-$HOME/.cache}/weatherreport"
+
+get_forecast() {
+  timeout --signal=1 2s curl -sf "$url/$LOCATION" >"$cache_file" || exit 1
+}
+
+is_forecast_valid() {
+  [ -s "$cache_file" ] &&
+    [ "$(date -r "$cache_file" '+%Y-%m-%d')" = "$(date '+%Y-%m-%d')" ]
+}
+
+get_precip_chance() {
+  echo "$weather_data" | sed -n '16p' | grep -wo '[0-9]\+%' | sort -rn | head -n1
+}
+
+get_daily_highlow() {
+  echo "$weather_data" | sed -n '13p' |
+    grep -o 'm[-+]*[0-9]\+' |
+    sed 's/[+m]//g' |
+    sort -n |
+    sed -n '1p;$p'
+}
+
+# Baca isi file cuaca
+read_weather_file() {
+  weather_data="$(cat "$cache_file")"
+}
+
+# Tampilkan cuaca dalam format status bar
+show_weather() {
+  read_weather_file
+  precip=$(get_precip_chance)
+  set -- $(get_daily_highlow)
+  low="$1"
+  high="$2"
+  printf " %s 󰼶 %s°  %s°\n" "$precip" "$high" "$low"
+}
+
+is_forecast_valid || get_forecast
+show_weather

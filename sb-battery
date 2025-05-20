@@ -1,0 +1,42 @@
+#!/bin/bash
+
+BAT_PATH="/sys/class/power_supply/BAT0"
+[ ! -d "$BAT_PATH" ] && printf "Battery not found\n" && exit 1
+
+CAPACITY=$(<"$BAT_PATH/capacity")
+STATUS=$(<"$BAT_PATH/status")
+
+if [ "$STATUS" = "Charging" ] && [ "$CAPACITY" -eq 100 ]; then
+  STATUS="Full"
+fi
+
+case "$STATUS" in
+"Charging")
+  ICON="⚡"
+  ;;
+"Discharging")
+  if [ "$CAPACITY" -ge 80 ]; then
+    ICON=" "
+  elif [ "$CAPACITY" -ge 60 ]; then
+    ICON=" "
+  elif [ "$CAPACITY" -ge 40 ]; then
+    ICON=" "
+  elif [ "$CAPACITY" -ge 20 ]; then
+    ICON=" "
+  else
+    ICON=""
+  fi
+  ;;
+"Full")
+  ICON=""
+  ;;
+*)
+  ICON=""
+  ;;
+esac
+
+if [ "$STATUS" = "Full" ]; then
+  printf " %s %d%% Full \n" "$ICON" "$CAPACITY"
+else
+  printf " %s %d%% \n" "$ICON" "$CAPACITY"
+fi
