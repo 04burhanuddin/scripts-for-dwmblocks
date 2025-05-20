@@ -1,8 +1,17 @@
 #!/bin/sh
 
+cache_file="${XDG_CACHE_HOME:-$HOME/.cache}/crypto_price"
 api="https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=idr"
 
-data=$(curl -s "$api")
+data=$(curl -sf "$api")
+
+if [ $? -eq 0 ] && echo "$data" | grep -q '"bitcoin":'; then
+  mkdir -p "$(dirname "$cache_file")"
+  echo "$data" >"$cache_file"
+else
+  [ -f "$cache_file" ] && data=$(cat "$cache_file") || data="{}"
+fi
+
 btc=$(echo "$data" | sed -n 's/.*"bitcoin":{"idr":\([^}]*\)}.*/\1/p')
 eth=$(echo "$data" | sed -n 's/.*"ethereum":{"idr":\([^}]*\)}.*/\1/p')
 
