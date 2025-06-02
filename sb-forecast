@@ -1,10 +1,17 @@
 #!/bin/sh
 
+# Konfigurasi
 url="${WTTRURL:-wttr.in}"
 cache_file="${XDG_CACHE_HOME:-$HOME/.cache}/weatherreport"
 
+location="${LOCATION:-}"
+
 get_forecast() {
-  timeout --signal=1 2s curl -sf "$url/$LOCATION" >"$cache_file" || exit 1
+  if [ -n "$location" ]; then
+    timeout --signal=1 2s curl -sf "$url/${location}" >"$cache_file" || exit 1
+  else
+    timeout --signal=1 2s curl -sf "$url" >"$cache_file" || exit 1
+  fi
 }
 
 is_forecast_valid() {
@@ -24,19 +31,17 @@ get_daily_highlow() {
     sed -n '1p;$p'
 }
 
-# Baca isi file cuaca
 read_weather_file() {
   weather_data="$(cat "$cache_file")"
 }
 
-# Tampilkan cuaca dalam format status bar
 show_weather() {
   read_weather_file
   precip=$(get_precip_chance)
   set -- $(get_daily_highlow)
   low="$1"
   high="$2"
-  printf " %s 󰼶 %s°  %s°\n" "$precip" "$high" "$low"
+  printf "  %s 󰼶 %s°  %s° \n" "$precip" "$high" "$low"
 }
 
 is_forecast_valid || get_forecast
