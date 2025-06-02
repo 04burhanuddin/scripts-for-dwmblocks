@@ -1,34 +1,72 @@
 #!/bin/bash
 
 BAT_PATH="/sys/class/power_supply/BAT0"
-[ ! -d "$BAT_PATH" ] && printf "Battery not found\n" && exit 1
+[ ! -d "$BAT_PATH" ] && printf " Battery not found \n" && exit 1
 
 CAPACITY=$(<"$BAT_PATH/capacity")
-STATUS=$(<"$BAT_PATH/status")
+STATUS=$(tr -d '\n' <"$BAT_PATH/status")
 
 if [ "$STATUS" = "Charging" ] && [ "$CAPACITY" -eq 100 ]; then
   STATUS="Full"
 fi
 
+if [ "$CAPACITY" -gt 100 ]; then
+  CAPACITY=100
+fi
+
 case "$STATUS" in
-"Charging")
-  ICON="⚡"
+"Charging" | "Not charging")
+  if [ "$CAPACITY" -ge 100 ]; then
+    ICON="󰂅"
+  elif [ "$CAPACITY" -ge 90 ]; then
+    ICON="󰂋"
+  elif [ "$CAPACITY" -ge 80 ]; then
+    ICON="󰂊"
+  elif [ "$CAPACITY" -ge 70 ]; then
+    ICON="󰢞"
+  elif [ "$CAPACITY" -ge 60 ]; then
+    ICON="󰂉"
+  elif [ "$CAPACITY" -ge 50 ]; then
+    ICON="󰢝"
+  elif [ "$CAPACITY" -ge 40 ]; then
+    ICON="󰂈"
+  elif [ "$CAPACITY" -ge 30 ]; then
+    ICON="󰂇"
+  elif [ "$CAPACITY" -ge 20 ]; then
+    ICON="󰂆"
+  elif [ "$CAPACITY" -ge 10 ]; then
+    ICON="󰢜"
+  else
+    ICON="󱃍"
+  fi
   ;;
 "Discharging")
-  if [ "$CAPACITY" -ge 80 ]; then
-    ICON=" "
+  if [ "$CAPACITY" -ge 100 ]; then
+    ICON="󰁹"
+  elif [ "$CAPACITY" -ge 90 ]; then
+    ICON="󰂂"
+  elif [ "$CAPACITY" -ge 80 ]; then
+    ICON="󰂁"
+  elif [ "$CAPACITY" -ge 70 ]; then
+    ICON="󰂀"
   elif [ "$CAPACITY" -ge 60 ]; then
-    ICON=" "
+    ICON="󰁿"
+  elif [ "$CAPACITY" -ge 50 ]; then
+    ICON="󰁾"
   elif [ "$CAPACITY" -ge 40 ]; then
-    ICON=" "
+    ICON="󰁽"
+  elif [ "$CAPACITY" -ge 30 ]; then
+    ICON="󰁼"
   elif [ "$CAPACITY" -ge 20 ]; then
-    ICON=" "
+    ICON="󰁻"
+  elif [ "$CAPACITY" -ge 10 ]; then
+    ICON="󰁺"
   else
-    ICON=""
+    ICON="󱟥"
   fi
   ;;
 "Full")
-  ICON=""
+  ICON="󰂄"
   ;;
 *)
   ICON=""
