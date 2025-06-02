@@ -1,11 +1,11 @@
 #!/bin/sh
 
 vol=$(amixer get Master | grep -o '[0-9]\+%' | head -n1 | tr -d '%')
-mute=$(amixer get Master | grep -o '\[off\]')
+mute=$(amixer get Master | grep '\[on\]' >/dev/null && echo 0 || echo 1)
 
-if [ "$mute" = "[off]" ]; then
-  icon=""
-  printf " %s MUTE \n" "$icon"
+if [ "$mute" -eq 1 ]; then
+  icon=""
+  printf " %s Mute \n" "$icon"
 else
   if [ "$vol" -eq 0 ]; then
     icon=""
