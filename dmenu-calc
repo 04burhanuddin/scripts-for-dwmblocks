@@ -1,0 +1,24 @@
+#!/bin/sh
+
+input=$(echo "" | dmenu -p "insert operation (e.g. 5x5):")
+
+if [ -n "$input" ]; then
+  expr=$(echo "$input" | sed 's/x/*/g; s/:/\//g')
+
+  raw_result=$(echo "scale=4; $expr" | bc 2>/dev/null)
+
+  if [ $? -eq 0 ] && [ -n "$raw_result" ]; then
+    result=$(echo "$raw_result" | awk '
+            {
+                if ($0 == int($0))
+                    print int($0);
+                else
+                    printf "%.2f\n", $0;
+            }
+        ')
+
+    notify-send "Result" "$input = $result"
+  else
+    notify-send "Error" "Invalid or uncountable input."
+  fi
+fi
