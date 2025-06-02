@@ -1,0 +1,22 @@
+#!/bin/sh
+
+MOON=$(curl -s 'wttr.in/Moon?format=%m')
+
+if [ -z "$MOON" ]; then
+  printf "\ue0b7🌑 \n"
+  exit 1
+fi
+
+case "$MOON" in
+"🌑") PHASE="New Moon" ;;
+"🌒") PHASE="Waxing Crescent" ;;
+"🌓") PHASE="First Quarter" ;;
+"🌔") PHASE="Waxing Gibbous" ;;
+"🌕") PHASE="Full Moon" ;;
+"🌖") PHASE="Waning Gibbous" ;;
+"🌗") PHASE="Last Quarter" ;;
+"🌘") PHASE="Waning Crescent" ;;
+*) PHASE="Unknown" ;;
+esac
+
+printf "\ue0b7%s \n" "$MOON"
