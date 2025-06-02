@@ -1,20 +1,23 @@
-#!/bin/sh
+#!/bin/bash
 
-hour=$(date '+%-I')
+hour=$(date '+%H')
+hour_mod=$((hour % 12))
+[ "$hour_mod" -eq 0 ] && hour_mod=12
 
-case "$hour" in
-"1") icon="󱑋" ;;
-"2") icon="󱑌" ;;
-"3") icon="󱑍" ;;
-"4") icon="󱑎" ;;
-"5") icon="󱑏" ;;
-"6") icon="󱑐" ;;
-"7") icon="󱑑" ;;
-"8") icon="󱑒" ;;
-"9") icon="󱑓" ;;
-"10") icon="󱑔" ;;
-"11") icon="󱑕" ;;
-"12") icon="󱑖" ;;
-esac
+icons=(
+  "󱑋"
+  "󱑌"
+  "󱑍"
+  "󱑎"
+  "󱑏"
+  "󱑐"
+  "󱑑"
+  "󱑒"
+  "󱑓"
+  "󱑔"
+  "󱑕"
+  "󱑖"
+)
 
-printf " %s %s \n" "$icon" "$(date '+%-I:%M%p')"
+icon=${icons[$((hour_mod - 1))]}
+printf " %s %s \n" "$icon" "$(date '+%H:%M')"
