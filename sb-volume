@@ -1,18 +1,37 @@
 #!/bin/sh
 
-vol=$(amixer get Master | grep -o '[0-9]\+%' | head -n1 | tr -d '%')
-mute=$(amixer get Master | grep '\[on\]' >/dev/null && echo 0 || echo 1)
+get_volume_info() {
+  device="$1"
+  vol=$(amixer get "$device" | grep -o '[0-9]\+%' | head -n1 | tr -d '%')
+  mute=$(amixer get "$device" | grep '\[on\]' >/dev/null && echo 0 || echo 1)
+  echo "$vol $mute"
+}
 
-if [ "$mute" -eq 1 ]; then
-  icon=""
-  printf " %s Mute \n" "$icon"
+read speaker_vol speaker_mute < <(get_volume_info Master)
+read mic_vol mic_mute < <(get_volume_info Capture)
+
+# speaker
+if [ "$speaker_mute" -eq 1 ]; then
+  speaker_icon=""
+  speaker_status="Mute"
 else
-  if [ "$vol" -eq 0 ]; then
-    icon=""
-  elif [ "$vol" -le 30 ]; then
-    icon=""
+  if [ "$speaker_vol" -eq 0 ]; then
+    speaker_icon=""
+  elif [ "$speaker_vol" -le 30 ]; then
+    speaker_icon=""
   else
-    icon=""
+    speaker_icon=""
   fi
-  printf " %s %s%% \n" "$icon" "$vol"
+  speaker_status="$speaker_vol%"
 fi
+
+# microphone
+if [ "$mic_mute" -eq 1 ]; then
+  mic_icon=""
+  mic_status="Mute"
+else
+  mic_icon=""
+  mic_status="$mic_vol%"
+fi
+
+printf " %s %s  %s %s \n" "$speaker_icon" "$speaker_status" "$mic_icon" "$mic_status"
