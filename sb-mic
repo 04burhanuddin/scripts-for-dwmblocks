@@ -1,0 +1,18 @@
+#!/bin/sh
+
+color_normal="#000000"
+color_mute="#FF0000"
+
+get_volume_info() {
+  vol=$(amixer get Capture | grep -o '[0-9]\+%' | head -n1 | tr -d '%')
+  mute=$(amixer get Capture | grep '\[on\]' >/dev/null && echo 0 || echo 1)
+  echo "$vol $mute"
+}
+
+read mic_vol mic_mute < <(get_volume_info)
+
+if [ "$mic_mute" -eq 1 ]; then
+  printf "^c%s^  Mute \n" "$color_mute"
+else
+  printf "^c%s^  %s%% \n" "$color_normal" "$mic_vol"
+fi
