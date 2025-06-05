@@ -1,6 +1,7 @@
 #!/bin/bash
 
 hour=$(date '+%H')
+hour=$((10#$hour))
 hour_mod=$((hour % 12))
 [ "$hour_mod" -eq 0 ] && hour_mod=12
 
